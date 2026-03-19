@@ -29,10 +29,13 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         // Response. Return JSON
         return response()->json([
             'message' => 'Usuario registrado con éxito',
-            'user' => $user
+            'user' => $user,
+            'token' => $token
         ], 201);
     }
 
@@ -48,7 +51,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user && !Hash::check($request->password, $user->password)) {
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
                 'message' => 'Credenciales incorrectas'
             ], 401);
